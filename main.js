@@ -1,91 +1,106 @@
-import { menu, buttonsData } from "./db.js";
-// htmlden gelenler
-const menuArea = document.getElementById("menu-area");
-const buttonsArea = document.getElementById("buttons-area");
+import { menu, buttonsData } from './db.js';
+import { calculatePrice } from './helpers.js';
 
-// sayfanın yüklenme olayı izleme
-// yüklendiği anda ekrana menü elemanlarını basan fonksiyonu çalıştır
+// HTML'den gelenler
+const menuArea = document.getElementById('menu-area');
+const buttonsArea = document.getElementById('buttons-area');
 
-document.addEventListener("DOMContentLoaded", () => {
-  renderButtons("all");
+// sayfanın yüklenme olayını izleme
+// yüklendiği anda ekrana menü elemanları basma fonksiyonunu çalıştır
+document.addEventListener('DOMContentLoaded', () => {
+  renderButtons('all');
   renderMenuItems(menu);
 });
 
-// butonlar kısmında tıklanma olayllarını izker
+// butonlar kısmında tıklanma olaytlarını izler
+buttonsArea.addEventListener('click', searchCategory);
 
-buttonsArea.addEventListener("click", searchCategory);
 //! ekrana menü elemanlarını basar
 function renderMenuItems(menuItems) {
-  // dizideki her bir obje için bir elemanı temsil eden html oluştur
-  // bu htmlyi bir diziye aktar ve stringe çevir
-
+  // dizideki her bir obje için
+  // bir elemanını temsil eden html oluştur
+  // bu html'i bir diziye aktar
+  // stringe çevir
   let menuHtml = menuItems.map((item) => {
-    let newPrice = item.price * 15;
-    newPrice = newPrice.toFixed(2);
     return `
-  <a id="card" href="" class="d-flex gap-3 flex-column flex-md-row text-decoration-none text-dark"
->
-  <img class="rounded shadow" src=${item.img} alt="" />
-
-  <div>
-    <div class="d-flex justify-content-between">
-      <h3>${item.title}</h3>
-      <p class="text-success"> ${newPrice}₺</p>
-    </div>
-    <p class="lead">
-      ${item.desc}
-    </p>
-  </div>
-</a>
+       <a href="/productDetail.html?id=${
+         item.id
+       }" id="card" class="d-flex flex-column flex-md-row text-decoration-none text-dark gap-3">
+        <img
+          class="rounded shadow"
+          src=${item.img}
+        />
+        <div>
+          <div class="d-flex justify-content-between">
+            <h5>${item.title}</h5>
+            <p class="text-success">&#8378; ${calculatePrice(
+              item.price
+            )}</p>
+          </div>
+          <p class="lead">
+            ${item.desc}
+          </p>
+        </div>
+      </a>
   `;
   });
-  // diziyi strginge çevirme
 
-  menuHtml = menuHtml.join("");
-  // oluşturulan htmlyi ekrana basma
+  // diziyi stringe çevir
+  menuHtml = menuHtml.join(' ');
 
+  // oluşturduğumuz html'i ekrana bas
   menuArea.innerHTML = menuHtml;
 }
 
-// ! Filtreleme
-// tıklanılan butona göre ekrana o butonun categorisine göre üünleri listleler
+//! Filtreleme
+// tıklanılan butona göre ekrana o butonun kategorisine ait
+// ürünleri listler
 function searchCategory(e) {
   const category = e.target.dataset.category;
-  // tüm dizi elemanlarından yalnızca kategori değeri butonun kategori değeriyle eşleşenleri getir
-  const filteredMenu = menu.filter((item) => item.category === category);
-  if (category === "all") {
+
+  // tüm dizi elemalarından yalnızca kategori değeri
+  // butonun kategori değeriyle eşleşenleri getir
+  const filtredMenu = menu.filter(
+    (item) => item.category === category
+  );
+
+  // hepsi seçilirse bütün menüyü ekrana bas
+  if (category === 'all') {
     renderMenuItems(menu);
   } else {
-    renderMenuItems(filteredMenu);
+    // filtrelenmiş diziyi ekrana basma
+    renderMenuItems(filtredMenu);
   }
-  // butonları güncelle
 
+  // butonları güncelle
   renderButtons(category);
 }
 
-// !ekrana butonları basacak fonksiyon
-
+//! ekrana butonları basıcak fonksiyon
 function renderButtons(active) {
-  buttonsArea.innerHTML = " ";
-  console.log(active);
-  // yeni butonlar oluşturma
+  //* eski butonları kaldırma
+  buttonsArea.innerHTML = ' ';
 
+  //* yeni butonları oluşturma
   buttonsData.forEach((btn) => {
-    // html butonu oluşturma
-    const buttonELe = document.createElement("button");
-    // butona gerekli classları verme
-    buttonELe.className = "btn btn-outline-dark filter-btn";
-    // içerisindeki yazıyı değiştirme
-    buttonELe.innerText = btn.text;
-    // bton hangi kategoriye ait onun bilgisini ekleme
-    buttonELe.dataset.category = btn.value;
-    // eğer active kategoriyle buton eşleşirse ona farklı classs ver
+    // html butonu oluştur
+    const buttonEle = document.createElement('button');
 
+    // gerekli class'ları verme
+    buttonEle.className = 'btn btn-outline-dark filter-btn';
+
+    // içeriswindeki yazıyı değiştirme
+    buttonEle.innerText = btn.text;
+
+    // hangi kategori olduğu bilgisini buton elementine ekleme
+    buttonEle.dataset.category = btn.value;
+
+    // eğerki aktif kategoriyle buton eşleşirse ona farklı class ver
     if (btn.value === active) {
-      console.log("active buton ");
+      buttonEle.classList.add('bg-dark', 'text-light');
     }
 
-    // htmlye gönderme
-    buttonsArea.appendChild(buttonELe);
+    // html'e gönderme
+    buttonsArea.appendChild(buttonEle);
   });
 }
